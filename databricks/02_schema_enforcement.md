@@ -58,3 +58,66 @@ So remember:
 Type coercion → "5" STRING can become 5 INT
 Schema evolution → adding promo_code column
 mergeSchema does NOT mean "cast every datatype difference."
+
+
+============================================================
+#TEST 2 - A missing column in the incoming DataFrame does not necessarily cause a schema error; the existing table column can receive NULL.
+Missing total_amount did NOT fail. It was appended with the column missing, so Delta filled that column with NULL for the new row.
+
+So this test teaches us:
+
+A missing column in the incoming DataFrame does not necessarily cause a schema error; the existing table column can receive NULL.
+=================================
+
+---------------------------------------------
+# ============================================================
+# TEST 3 - MISSING REQUIRED COLUMN without schema defintion--
+# ============================================================
+The problem is this:
+
+missing_data = [("T1101", "C1101", "P1101", "S1101", None, 2, 50.0)]
+
+You used None and didn't provide a schema. Spark tries to infer the datatype, but it cannot determine the type of a column whose only value is None.
+
+So:
+
+None → no datatype information
+       ↓
+Spark cannot infer the schema
+       ↓
+CANNOT_DETERMINE_TYPE
+
+This is schema inference failure, 
+
+chema Enforcement = what happens when incoming data does not match the expected schema.
+
+test has:
+
+Incoming data
+      ↓
+Spark tries to create DataFrame
+      ↓
+Schema inference cannot determine the type
+      ↓
+CANNOT_DETERMINE_TYPE
+
+That is a schema-related production issue, and it belongs in your Schema Enforcement module.
+
+The distinction is only:
+
+CANNOT_DETERMINE_TYPE → failure while inferring the incoming schema
+"abc" → INT failure → failure while writing against the existing table schema
+Both are useful Schema Enforcement / schema-management tests.
+
+# ============================================================
+# TEST 5 - all COLUMN without schema defintion--
+# ============================================================
+
+
+Yes, this is a valid 9-column row, because you added None for promo_code.
+
+But there is one important issue: because you are using schema inference, the None value has no type information. Spark may fail with:
+
+CANNOT_DETERMINE_TYPE
+
+
