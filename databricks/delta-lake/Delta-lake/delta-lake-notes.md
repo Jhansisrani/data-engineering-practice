@@ -58,4 +58,4 @@ Explored table versions and history using:
 
 ```sql
 
-DESCRIBE HISTORY table\_name;
+DESCRIBE HISTORY table_name;
