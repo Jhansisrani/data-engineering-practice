@@ -1,3 +1,28 @@
+**Schema inference vs. explicit schemas**
+
+Same file. Two approaches.
+**inferSchema** 
+Let Spark guess
+load the files let spark decides..
+None up front
+
+
+**Explicit StructType** You define it
+declare the file ..load the same files,compare..
+A few lines of code
+
+
+**inferSchema EXPLORATION**
+Unfamiliar files, one-off analysis, quick looks
+Add processing cost and can still produce a a schema that
+does not fit future files.
+
+**Explicit StructType PRODUCTION**
+Scheduled pipelines, any write to a Delta table
+Types are locked, nothing left to guess
+
+
+
 When you used:
 
 ("T900", "C900", "P900", "S900", None, "5", 100.0, 500.0, "PROMO20")
@@ -119,5 +144,9 @@ Yes, this is a valid 9-column row, because you added None for promo_code.
 But there is one important issue: because you are using schema inference, the None value has no type information. Spark may fail with:
 
 CANNOT_DETERMINE_TYPE
+
+
+
+
 
 
